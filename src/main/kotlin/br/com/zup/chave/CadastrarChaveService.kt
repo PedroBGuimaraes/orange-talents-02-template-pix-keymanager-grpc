@@ -3,6 +3,7 @@ package br.com.zup.chave
 import br.com.zup.chave.bcb.BancoCentralClient
 import br.com.zup.chave.bcb.CreatePixKeyRequest
 import br.com.zup.chave.enums.TipoChave
+import br.com.zup.chave.exceptions.ChaveExistenteException
 import br.com.zup.chave.itau.ItauClient
 import io.micronaut.http.HttpStatus
 import io.micronaut.validation.Validated
@@ -25,7 +26,8 @@ class CadastrarChaveService(
     fun salvar(@Valid chaveDTO: CadastrarChaveDTO): Chave {
         // Verificar se a chave já existe
         if(chaveRepository.existsByChave(chaveDTO.chave)){
-            //throw ChaveExistenteException()
+            println("------------------------------------------------ Entrou -------------------------------------------")
+            throw ChaveExistenteException()
         }
 
         // Buscar dados da conta

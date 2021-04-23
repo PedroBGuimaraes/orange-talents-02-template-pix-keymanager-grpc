@@ -65,7 +65,6 @@ internal class ChavePixGRpcTest (val grpcClient: KeyManagerGrpcServiceGrpc.KeyMa
         }
     }
 
-
 }
 
 @Factory

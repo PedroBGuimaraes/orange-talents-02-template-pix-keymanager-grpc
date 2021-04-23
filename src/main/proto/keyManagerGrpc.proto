@@ -6,10 +6,18 @@ option java_outer_classname = "KeyManagerGrpc";
 option objc_class_prefix = "HLW";
 
 package br.com.zup;
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 service KeyManagerGrpcService {
   rpc send (KeyManagerGrpcRequest) returns (KeyManagerGrpcReply) {}
   rpc cadastrar (CadastrarChaveRequest) returns (CadastrarChaveResponse) {}
+  rpc remover (RemoverChaveRequest) returns (google.protobuf.Empty);
+}
+
+message RemoverChaveRequest{
+  string idChave = 1;
+  string idCliente = 2;
 }
 
 enum TipoConta {

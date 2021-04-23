@@ -15,4 +15,10 @@ interface BancoCentralClient {
     )
     fun cadastrar(@Body request: CreatePixKeyRequest): HttpResponse<CreatePixKeyResponse>
 
+    @Delete(
+        value = "/api/v1/pix/keys/{key}",
+        produces = [APPLICATION_XML]
+    )
+    fun remover(@Body request: DeletePixKeyRequest, @PathVariable key: String): HttpResponse<Unit>
+
 }

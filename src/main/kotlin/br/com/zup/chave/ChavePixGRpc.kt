@@ -1,16 +1,15 @@
 package br.com.zup.chave
 
-import br.com.zup.CadastrarChaveRequest
-import br.com.zup.CadastrarChaveResponse
-import br.com.zup.KeyManagerGrpcServiceGrpc
-import br.com.zup.RemoverChaveRequest
+import br.com.zup.*
 import br.com.zup.chave.bcb.BancoCentralClient
 import br.com.zup.chave.bcb.CreatePixKeyRequest
 import br.com.zup.chave.bcb.DeletePixKeyRequest
 import br.com.zup.chave.enums.TipoChave
 import br.com.zup.chave.exceptions.ChaveExistenteException
 import br.com.zup.chave.itau.ItauClient
+import br.com.zup.chave.utils.BuscarChaveResponseConverter
 import br.com.zup.chave.utils.toDTO
+import br.com.zup.chave.utils.toFiltro
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpStatus
@@ -18,12 +17,14 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.validation.Validator
 
 @Singleton
 class ChavePixGRpc(
     @Inject private val chaveRepository: ChaveRepository,
     @Inject private val bancoCentralClient: BancoCentralClient,
-    @Inject private val itauClient: ItauClient
+    @Inject private val itauClient: ItauClient,
+    @Inject private val validator: Validator
 ): KeyManagerGrpcServiceGrpc.KeyManagerGrpcServiceImplBase() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -93,5 +94,18 @@ class ChavePixGRpc(
         responseObserver.onNext(Empty.newBuilder().build())
         responseObserver.onCompleted()
     }
+
+    override fun buscar(
+        request: BuscarChaveRequest,
+        responseObserver: StreamObserver<BuscarChaveResponse>
+    ) {
+
+        val filtro = request.toFiltro(validator)
+        val resultado = filtro.filtrar(chaveRepository, bancoCentralClient)
+
+        responseObserver.onNext(BuscarChaveResponseConverter().converter(resultado))
+        responseObserver.onCompleted()
+    }
+
 
 }

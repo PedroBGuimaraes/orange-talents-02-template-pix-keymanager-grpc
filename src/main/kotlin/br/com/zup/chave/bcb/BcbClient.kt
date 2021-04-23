@@ -21,4 +21,10 @@ interface BancoCentralClient {
     )
     fun remover(@Body request: DeletePixKeyRequest, @PathVariable key: String): HttpResponse<Unit>
 
+    @Get(
+        value = "/api/v1/pix/keys/{key}",
+        consumes = [APPLICATION_XML]
+    )
+    fun buscarPorChave(@PathVariable key: String): HttpResponse<DetailsPixKeyDto>
+
 }

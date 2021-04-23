@@ -13,6 +13,40 @@ service KeyManagerGrpcService {
   rpc send (KeyManagerGrpcRequest) returns (KeyManagerGrpcReply) {}
   rpc cadastrar (CadastrarChaveRequest) returns (CadastrarChaveResponse) {}
   rpc remover (RemoverChaveRequest) returns (google.protobuf.Empty);
+  rpc buscar (BuscarChaveRequest) returns (BuscarChaveResponse);
+}
+
+message BuscarChaveRequest {
+  message BuscaPorPixId{
+    string idChave = 1;
+    string idCliente = 2;
+  }
+
+  oneof busca {
+    BuscaPorPixId pixId = 1;
+    string chave = 2;
+  }
+}
+
+message BuscarChaveResponse {
+  message ChaveInfo {
+    message ContaInfo {
+      TipoConta tipo = 1;
+      string instituicao = 2;
+      string titularNome = 3;
+      string titularCpf = 4;
+      string agencia = 5;
+      string conta = 6;
+    }
+
+    TipoChave tipo = 1;
+    string chave = 2;
+    ContaInfo conta = 3;
+    google.protobuf.Timestamp criadaEm = 4;
+  }
+  string idCliente = 1;
+  string idPix = 2;
+  ChaveInfo chave = 3;
 }
 
 message RemoverChaveRequest{

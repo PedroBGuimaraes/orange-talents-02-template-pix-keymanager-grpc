@@ -11,9 +11,11 @@ import br.com.zup.chave.utils.BuscarChaveResponseConverter
 import br.com.zup.chave.utils.toDTO
 import br.com.zup.chave.utils.toFiltro
 import com.google.protobuf.Empty
+import com.google.protobuf.Timestamp
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpStatus
 import org.slf4j.LoggerFactory
+import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -107,5 +109,33 @@ class ChavePixGRpc(
         responseObserver.onCompleted()
     }
 
+    override fun listar(request: ListarChaveRequest, responseObserver: StreamObserver<ListarChaveResponse>) {
+        val chaves = chaveRepository.findByIdCliente(UUID.fromString(request.idCliente))
+
+        val chavesGrpc = chaves.map { chave ->
+            ListarChaveResponse.ListagemInfo.newBuilder()
+                .setIdPix(chave.id.toString())
+                .setTipoChave(br.com.zup.TipoChave.valueOf(chave.tipoChave.name))
+                .setTipoConta(TipoConta.valueOf(chave.tipoConta.name))
+                .setChave(chave.chave)
+                .setCriadaEm(chave.criadaEm.let {
+                    val instantes = it.atZone(ZoneId.of("UTC")).toInstant()
+
+                    Timestamp.newBuilder()
+                        .setSeconds(instantes.epochSecond)
+                        .setNanos(instantes.nano)
+                        .build()
+                })
+                .build()
+        }
+
+        responseObserver.onNext(
+            ListarChaveResponse.newBuilder()
+                .setIdCliente(request.idCliente)
+                .addAllChaves(chavesGrpc)
+                .build()
+        )
+        responseObserver.onCompleted()
+    }
 
 }
